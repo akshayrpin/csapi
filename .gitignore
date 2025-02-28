@@ -2,5 +2,5 @@
 *.projects
 *.prefs
 *.project
-/build/*
-/build/
+build/*
+build/
