@@ -1,0 +1,6 @@
+*.class
+*.projects
+*.prefs
+*.project
+/build/*
+/build/
