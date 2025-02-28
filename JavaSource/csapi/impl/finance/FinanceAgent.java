@@ -18,6 +18,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import alain.core.db.Sage;
 import alain.core.security.Token;
 import alain.core.utils.Config;
@@ -26,11 +29,8 @@ import alain.core.utils.MapSet;
 import alain.core.utils.Numeral;
 import alain.core.utils.Operator;
 import alain.core.utils.Timekeeper;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import csapi.common.Choices;
+import csapi.impl.activity.ActivityAgent;
 import csapi.impl.activity.ActivitySQL;
 import csapi.impl.custom.CustomSQL;
 import csapi.impl.deposit.DepositAgent;
@@ -42,7 +42,6 @@ import csapi.impl.people.PeopleSQL;
 import csapi.impl.tasks.TasksImpl;
 import csapi.utils.CsDeleteCache;
 import csapi.utils.CsTools;
-import csapi.utils.objtools.Fields;
 import csapi.utils.objtools.Tools;
 import csapi.utils.objtools.Types;
 import csapi.utils.validate.ValidateItype;
@@ -2952,6 +2951,12 @@ public class FinanceAgent {
 						}		
 					}*/
 					updatestatements(paymentId, u.getId());
+					
+					for(int i=0;i<adarr.length();i++){
+					JSONObject a = adarr.getJSONObject(i);
+						ActivityAgent.updatePlanActivity(a.getInt("activityid"), u);
+					}
+					
 					
 				}
 				

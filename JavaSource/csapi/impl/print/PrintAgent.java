@@ -85,6 +85,7 @@ public class PrintAgent {
 					t.put("MARGIN_TOP", db.getString("MARGIN_TOP"));
 					t.put("MARGIN_BOTTOM", db.getString("MARGIN_BOTTOM"));
 					t.put("FILE_DESIGN", db.getString("FILE_DESIGN"));
+					t.put("PUBLIC", db.getString("ISPUBLIC"));
 				}
 			}
 			

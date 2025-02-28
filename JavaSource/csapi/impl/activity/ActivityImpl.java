@@ -531,6 +531,28 @@ public class ActivityImpl {
 		return s;
 	}
 
+	public static String getupdatedates(HttpServletRequest request, HttpServletResponse response, String json) {
+		Logger.info("logging getupdatedates");
+		String s = "";
+		RequestVO vo = ObjMapper.toRequestObj(json);
+		ResponseVO r = new ResponseVO();
+		ObjectMapper mapper = new ObjectMapper();
+		
+		try {
+			Token u = Token.retrieve(vo.getToken(), vo.getIp());
+			ObjVO o = new ObjVO();
+			SubObjVO[] v = ActivityAgent.getActTypedates((vo.getType()), vo.getTypeid(), u);
+			o.setChoices(v);
+			s = mapper.writeValueAsString(o);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			Logger.error(e.getMessage());
+		}
+	
+		return s;
+	}
+
 }
 
 

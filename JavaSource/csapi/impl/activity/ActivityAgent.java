@@ -19,7 +19,6 @@ import alain.core.utils.Operator;
 import alain.core.utils.Timekeeper;
 import csapi.common.Choices;
 import csapi.common.LkupCache;
-import csapi.impl.activities.ActivitiesSQL;
 import csapi.impl.communications.CommunicationsAgent;
 import csapi.impl.custom.CustomSQL;
 import csapi.impl.divisions.DivisionsAgent;
@@ -151,7 +150,7 @@ public class ActivityAgent {
 		
 		
 		if (type.equalsIgnoreCase("activity") && typeid > 0) {
-			int ur = updateActivity(typeid, m.getString("DESCRIPTION"), m.getInt("LKUP_ACT_STATUS_ID"), Operator.toDouble(m.getString("VALUATION_CALCULATED")), Operator.toDouble(m.getString("VALUATION_DECLARED")), Operator.equalsIgnoreCase(m.getString("UPDATE_FEES"), "Y"), m.getString("PLAN_CHK_REQ"), m.getString("START_DATE"), m.getString("APPLIED_DATE"), m.getString("ISSUED_DATE"), m.getString("EXP_DATE"), m.getString("APPLICATION_EXP_DATE"), m.getString("FINAL_DATE"), m.getString("ONLINE"), m.getString("SENSITIVE"), m.getString("INHERIT"), m.getString("SEND_EMAIL"), m.getString("NOTIFY"), m.getString("COMMENT"), u.getId(), u.getIp());
+			int ur = updateActivity(typeid, m.getString("DESCRIPTION"), m.getInt("LKUP_ACT_STATUS_ID"), Operator.toDouble(m.getString("VALUATION_CALCULATED")), Operator.toDouble(m.getString("VALUATION_DECLARED")), Operator.equalsIgnoreCase(m.getString("UPDATE_FEES"), "Y"), m.getString("PLAN_CHK_REQ"), m.getString("START_DATE"), m.getString("APPLIED_DATE"), m.getString("ISSUED_DATE"), m.getString("EXP_DATE"), m.getString("APPLICATION_EXP_DATE"), m.getString("FINAL_DATE"), m.getString("ONLINE"), m.getString("SENSITIVE"), m.getString("INHERIT"), m.getString("SEND_EMAIL"), m.getString("NOTIFY"), m.getString("COMMENT"), u.getId(), u.getIp(), m.getString("CODE_ENFORCEMENT"));
 			TasksImpl.runImmediate(ur, r, u);
 			return Operator.toString(ur);
 		}
@@ -179,11 +178,8 @@ public class ActivityAgent {
 			String online = m.getString("ONLINE");
 			String sensitive = m.getString("SENSITIVE");
 			String inherit = m.getString("INHERIT");
-			
-			
-		
-			
-			
+			String cc = m.getString("CODE_ENFORCEMENT");
+				
 			r.setStartdate(startdate);
 			r.setEnddate(expdate);
 		
@@ -241,6 +237,12 @@ public class ActivityAgent {
 									fdt = m.getString("FINAL_DATE_"+lkupacttypeid);
 								}
 
+								if(cc.equalsIgnoreCase("Y")) {
+									Timekeeper now = new Timekeeper();
+									now.addDay(90);
+									edt = now.getString("YYYY-MM-DD");
+								}
+									
 								int qty = 1;
 								if (Operator.hasValue(qtys)) {
 									qty = Operator.toInt(qtys, 1);
@@ -252,7 +254,7 @@ public class ActivityAgent {
 										
 										
 										if(rvalidate) {
-											int ia = addActivity(processid, entity, projectid, lkupacttypeid, description, lkupstatusid, calculated, declared, planchkreq, sdt, adt, idt, edt, aedt, fdt, online, sensitive, inherit, userid, ip, u);
+											int ia = addActivity(processid, entity, projectid, lkupacttypeid, description, lkupstatusid, calculated, declared, planchkreq, sdt, adt, idt, edt, aedt, fdt, online, sensitive, inherit, userid, ip, u, cc);
 											if (ia > 0) {
 												if (!empty) {
 													sb.append(",");
@@ -290,11 +292,17 @@ public class ActivityAgent {
 		}
 	}
 
-	public static int updateActivity(int actid, String description, int lkupactstatusid, double valuationcalculated, double valuationdeclared, boolean dovaluationfees, String planchkreq, String startdate, String applieddate, String issueddate, String expdate, String applexpdate, String finaldate, String online, String sensitive, String inherit, String sendemail, String notify, String comment, int userid, String ip) {
+	public static int updateActivity(int actid, String description, int lkupactstatusid, double valuationcalculated, double valuationdeclared, boolean dovaluationfees, String planchkreq, String startdate, String applieddate, String issueddate, String expdate, String applexpdate, String finaldate, String online, String sensitive, String inherit, String sendemail, String notify, String comment, int userid, String ip, String cc) {
 		if (actid < 1) { return -1; }
 		int r = -1;
 		Timekeeper now = new Timekeeper();
-		String command = ActivitySQL.update(actid, description,lkupactstatusid,  valuationcalculated, valuationdeclared, planchkreq, startdate, applieddate, issueddate, expdate, applexpdate, finaldate, online, sensitive, inherit, userid, ip, now);
+		
+		if(cc.equalsIgnoreCase("Y")) {
+			Timekeeper cct = new Timekeeper();
+			now.addDay(90);
+			expdate = now.getString("YYYY-MM-DD");
+		}
+		String command = ActivitySQL.update(actid, description,lkupactstatusid,  valuationcalculated, valuationdeclared, planchkreq, startdate, applieddate, issueddate, expdate, applexpdate, finaldate, online, sensitive, inherit, userid, ip, now, cc);
 		if (Operator.hasValue(command)) {
 			Sage db = new Sage();
 			if (db.query(command)) {
@@ -560,6 +568,9 @@ public class ActivityAgent {
 	}
 
 	public static int addActivity(String processid, String entity, int projectid, int lkupacttypeid, String description, int lkupactstatusid, double valuationcalculated, double valuationdeclared, String planchkreq, String startdate, String applieddate, String issueddate, String expdate, String applexpdate, String finaldate, String online, String sensitive, String inherit, int userid, String ip, Token u) {
+		return addActivity(processid, entity, projectid, lkupacttypeid, description, lkupactstatusid, valuationcalculated, valuationdeclared, planchkreq, startdate, applieddate, issueddate, expdate, applexpdate, finaldate, online, sensitive, inherit, userid, ip, u, "");
+	}
+	public static int addActivity(String processid, String entity, int projectid, int lkupacttypeid, String description, int lkupactstatusid, double valuationcalculated, double valuationdeclared, String planchkreq, String startdate, String applieddate, String issueddate, String expdate, String applexpdate, String finaldate, String online, String sensitive, String inherit, int userid, String ip, Token u, String cc) {
 		if (lkupacttypeid < 1) { return -1; }
 		int actid = -1;
 		Timekeeper now = new Timekeeper();
@@ -572,7 +583,7 @@ public class ActivityAgent {
 			}
 		}
 		LogAgent.updateLog(processid, "Add new activity: "+description, "Adding activity: "+projectid);
-		command = ActivitySQL.add("", projectid, lkupacttypeid, description, lkupactstatusid, valuationcalculated, valuationdeclared, planchkreq, startdate, applieddate, issueddate, expdate, applexpdate, finaldate, online, sensitive, inherit, userid, ip, now);
+		command = ActivitySQL.add("", projectid, lkupacttypeid, description, lkupactstatusid, valuationcalculated, valuationdeclared, planchkreq, startdate, applieddate, issueddate, expdate, applexpdate, finaldate, online, sensitive, inherit, userid, ip, now, cc);
 		if (Operator.hasValue(command)) {
 			try {
 				if (db.query(command) && db.next()) {
@@ -597,6 +608,10 @@ public class ActivityAgent {
 									command = ProjectSQL.removeExpiration(projectid);
 								}
 								db.update(command);
+							}
+
+							if(planchkreq.equalsIgnoreCase("Y")) {
+								db.update(ActivitySQL.updateActDates(actid, null, userid, ip));
 							}
 							addHistory(actid, "activity", actid, "add");
 						}
@@ -1439,6 +1454,105 @@ public class ActivityAgent {
 		return DbUtil.getObjectAsMap(table, where, select, join);
 	}
 
+	public static SubObjVO[] getActTypedates(String type, int typeid, Token u) {
+		String command = ActivitySQL.getActTypedates(type, typeid);
+		ArrayList<SubObjVO> a = new ArrayList<SubObjVO>();
+		Sage db = new Sage();
+		db.query(command);
+		if (db.size() > 0) {
+			ArrayList<String> al = new ArrayList<String>();
+			while(db.next()) {
+				al.add(db.getString("ID"));
+			}
+			String[] arr = a.toArray(new String[a.size()]);
+			HoldsList hl = HoldsAgent.getHolds(type, typeid, arr);
+			db.beforeFirst();
+			String[] cols = db.COLUMNS;
+			while (db.next()) {
+				boolean iscreate = true;
+				int id = db.getInt("ID");
+				boolean onhold = hl.actOnSignificantHold(id);
+				if (!onhold) {
+					SubObjVO vo = new SubObjVO();
+					vo.setId(db.getInt("ID"));
+					vo.setValue(db.getString("VALUE"));
+					vo.setText(db.getString("TEXT"));
+					vo.setDescription(db.getString("DESCRIPTION"));
+					vo.setSelected(db.getString("SELECTED"));
+
+					String expdate = "";
+					Timekeeper exp = new Timekeeper();
+					if (db.getInt("MONTH_START") > 0) {
+						exp.setMonth(db.getInt("MONTH_START"));
+						if (db.getInt("DAY_START") > 0) {
+							exp.setDay(db.getInt("DAY_START"));
+						}
+						else {
+							exp.setDay(1);
+						}
+						exp.addDay(-1);
+						if (exp.past()) {
+							exp.addYear(1);
+						}
+						expdate = exp.getString("YYYY/MM/DD");
+					}
+					else if (db.getInt("YEARS_TILL_EXPIRED") > -1) {
+						exp.addYear(db.getInt("YEARS_TILL_EXPIRED"));
+						if (db.getInt("DAYS_TILL_EXPIRED") > -1) {
+							exp.addDay(db.getInt("DAYS_TILL_EXPIRED"));
+						}
+						expdate = exp.getString("YYYY/MM/DD");
+					}
+					else if (db.getInt("DAYS_TILL_EXPIRED") > -1) {
+						exp.addDay(db.getInt("DAYS_TILL_EXPIRED"));
+						expdate = exp.getString("YYYY/MM/DD");
+					}
+
+					vo.setData("PERMIT_EXPIRE", expdate);
+
+					String appexpdate = "";
+					if (db.getInt("DAYS_TILL_APPLICATION_EXPIRED") > -1) {
+						Timekeeper appexp = new Timekeeper();
+						appexp.addDay(db.getInt("DAYS_TILL_APPLICATION_EXPIRED"));
+						appexpdate = appexp.getString("YYYY/MM/DD");
+					}
+
+					vo.setData("APPLICATION_EXPIRE", appexpdate);
+
+					String roletype = db.getString("ROLE_TYPE");
+					int rtypeid = db.getInt("ROLE_TYPE_ID");
+					if (Operator.hasValue(roletype) && rtypeid > 0) {
+						RolesVO r = LkupCache.getActivityRoles(rtypeid);
+						vo.putRoles(r, u.getRoles(), u.getNonpublicroles(), u.isAdmin());
+						iscreate = vo.isCreate();
+					}
+
+					for (int i=0; i<cols.length; i++) {
+						String c = cols[i];
+						if (!c.equalsIgnoreCase("ID") && !c.equalsIgnoreCase("VALUE") && !c.equalsIgnoreCase("TEXT") && !c.equalsIgnoreCase("DESCRIPTION")  && !c.equalsIgnoreCase("SELECTED")) {
+							vo.setData(c, db.getString(c));
+						}
+					}
+					if (iscreate) {
+						a.add(vo);
+					}
+				}
+			}
+		}
+		db.clear();
+		SubObjVO[] r = a.toArray(new SubObjVO[a.size()]);
+		return r;
+	}
+
+	public static void updatePlanActivity(int activityid, Token u) {
+		SubObjVO[] v = getActTypedates("", activityid, u);
+		String planreq = v[0].getAddldata().get("PLAN_CHK_REQ");
+		if(planreq.equalsIgnoreCase("Y")) {
+			String command  = ActivitySQL.updateActDates(activityid, v[0].getAddldata().get("PERMIT_EXPIRE"), u.getId(), u.getIp());
+			Sage db = new Sage();
+			db.update(command);
+		}
+	}
 
 }
 

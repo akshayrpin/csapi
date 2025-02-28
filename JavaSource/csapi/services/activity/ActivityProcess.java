@@ -310,9 +310,15 @@ public class ActivityProcess  {
 		return Response.status(200).entity(output).build();
 		
 	}
+	
+	
+	@POST
+	@Path("/getupdatedates")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response updatedates(@Context HttpServletRequest request,@Context HttpServletResponse response, String json) {
+		String output = ActivityImpl.getupdatedates(request,response,json).toString();
+		return Response.status(200).entity(output).build();
+		
+	}
 }
-
-
-
-
-

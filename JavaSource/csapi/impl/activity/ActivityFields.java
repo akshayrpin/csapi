@@ -360,11 +360,10 @@ public class ActivityFields {
 	public static ObjGroupVO id() {
 		ObjGroupVO g = new ObjGroupVO();
 		g.setGroupid("activity");
-		g.setGroup(TYPE_DETAIL_TITLE);
 		g.setType("activity");
 		g.setHistory(true);
 		
-		ObjVO[] o = new ObjVO[18];
+		ObjVO[] o = new ObjVO[19];
 		
 		ObjVO vo = new ObjVO();
 		vo.setId(-1);
@@ -580,6 +579,17 @@ public class ActivityFields {
 		vo.setAddable("Y");
 		vo.setSystemGenerated("Y");
 		o[17] = vo;
+
+		vo = new ObjVO();
+		vo.setId(-1);
+		vo.setFieldid("CODE_ENFORCEMENT");
+		vo.setType("boolean");
+		vo.setItype("boolean");
+		vo.setField("CODE_ENFORCEMENT");
+		vo.setLabel("CODE ENFORCEMENT");
+		vo.setEditable("Y");
+		vo.setAddable("Y");
+		o[18] = vo;
 		
 		g.setObj(o);
 		
@@ -593,7 +603,7 @@ public class ActivityFields {
 		g.setType("activity");
 		g.setHistory(true);
 		
-		ObjVO[] o = new ObjVO[26];
+		ObjVO[] o = new ObjVO[27];
 		
 		ObjVO vo = new ObjVO();
 		vo.setId(-1);
@@ -916,6 +926,17 @@ public class ActivityFields {
 		vo.setField("UPDATE_FEES");
 		vo.setLabel("UPDATE FEES");
 		o[25] = vo;
+
+		vo = new ObjVO();
+		vo.setId(-1);
+		vo.setFieldid("CODE_ENFORCEMENT");
+		vo.setType("boolean");
+		vo.setItype("boolean");
+		vo.setField("CODE_ENFORCEMENT");
+		vo.setLabel("CODE ENFORCEMENT");
+		vo.setEditable("Y");
+		vo.setAddable("Y");
+		o[26] = vo;
 		
 		g.setObj(o);
 		

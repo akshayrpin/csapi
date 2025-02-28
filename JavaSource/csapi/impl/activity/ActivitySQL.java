@@ -757,7 +757,7 @@ public class ActivitySQL {
 		return sb.toString();
 	}*/
 
-	public static String add(String actnbr, int projectid, int lkupacttypeid, String description, int lkupactstatusid, double valuationcalculated, double valuationdeclared, String planchkreq, String startdate, String applieddate, String issueddate, String expdate, String applexpdate, String finaldate, String online, String sensitive, String inherit, int userid, String ip, Timekeeper now) {
+	public static String add(String actnbr, int projectid, int lkupacttypeid, String description, int lkupactstatusid, double valuationcalculated, double valuationdeclared, String planchkreq, String startdate, String applieddate, String issueddate, String expdate, String applexpdate, String finaldate, String online, String sensitive, String inherit, int userid, String ip, Timekeeper now, String cc) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(" INSERT INTO ACTIVITY ( ");
 		sb.append(" ACT_NBR ");
@@ -805,6 +805,8 @@ public class ActivitySQL {
 		sb.append(" CREATED_IP ");
 		sb.append(" , ");
 		sb.append(" UPDATED_IP ");
+		sb.append(" , ");
+		sb.append(" CODE_ENFORCEMENT ");
 
 		sb.append(" ) OUTPUT Inserted.ID  VALUES ( ");
 
@@ -869,6 +871,8 @@ public class ActivitySQL {
 		sb.append(" '").append(Operator.sqlEscape(ip)).append("' ");
 		sb.append(" , ");
 		sb.append(" '").append(Operator.sqlEscape(ip)).append("' ");
+		sb.append(" , ");
+		sb.append(CsTools.booleanColumnValue(cc));
 		sb.append(" ) ");
 		return sb.toString();
 	}
@@ -999,7 +1003,7 @@ public class ActivitySQL {
 		return sb.toString();
 	}
 
-	public static String update(int actid, String description, int lkupactstatusid, double valuationcalculated, double valuationdeclared, String planchkreq, String startdate, String applieddate, String issueddate, String expdate, String applexpdate, String finaldate, String online, String sensitive, String inherit, int userid, String ip, Timekeeper now) {
+	public static String update(int actid, String description, int lkupactstatusid, double valuationcalculated, double valuationdeclared, String planchkreq, String startdate, String applieddate, String issueddate, String expdate, String applexpdate, String finaldate, String online, String sensitive, String inherit, int userid, String ip, Timekeeper now, String cc) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(" UPDATE ACTIVITY SET ");
 		sb.append(" DESCRIPTION = '").append(Operator.sqlEscape(description)).append("' ");
@@ -1017,6 +1021,8 @@ public class ActivitySQL {
 		sb.append(" SENSITIVE = ").append(CsTools.booleanColumnValue(sensitive));
 		sb.append(" , ");
 		sb.append(" INHERIT = ").append(CsTools.booleanColumnValue(inherit));
+		sb.append(" , ");
+		sb.append(" CODE_ENFORCEMENT = ").append(CsTools.booleanColumnValue(cc));
 		sb.append(" , ");
 		sb.append(" START_DATE = ").append(CsTools.dateColumnValue(startdate));
 		sb.append(" , ");
@@ -3400,7 +3406,33 @@ public class ActivitySQL {
 				return sb.toString();
 	}
 
+	public static String getActTypedates(String type, int typeid) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(" SELECT * ");
+		sb.append(" FROM ");
+		sb.append(" ACTIVITY AS A ");
+		sb.append(" JOIN LKUP_ACT_TYPE AS T ON A.LKUP_ACT_TYPE_ID = T.ID AND A.ID = ").append(typeid);
+		return sb.toString();
+	}
 
-
-
+	public static String updateActDates(int activityid, String expdate, int userid, String ip) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(" UPDATE  ACTIVITY SET ");
+		sb.append(" 	UPDATED_BY = ").append(userid);
+		sb.append(" 	, ");
+		sb.append(" 	UPDATED_DATE = getDate() ");
+		sb.append(" 	, ");
+		sb.append(" 	UPDATED_IP = '").append(Operator.sqlEscape(ip)).append("' ");
+		if (Operator.hasValue(expdate)) {
+			sb.append(" 	, ");
+			sb.append(" 	EXP_DATE = ");
+			sb.append(CsTools.dateColumnValue(expdate));
+		} else {
+			sb.append(" 	, ");
+			sb.append(" 	EXP_DATE = null ");
+		}
+		sb.append(" where id = ");
+		sb.append(activityid);
+		return sb.toString();
+	}
 }

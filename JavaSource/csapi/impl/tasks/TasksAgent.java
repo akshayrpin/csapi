@@ -8,21 +8,21 @@ import csapi.impl.communications.CommunicationsAgent;
 
 public class TasksAgent {
 	
-	public static boolean emailExpiredPermits() {
+	public static boolean emailExpiredPermits(int days, String template) {
 		Sage db = new Sage();
 		boolean result = false;
 		try {
 			String content = null;
 			String subject = null;
 			String email;
-			db.query("select * from TEMPLATE where NAME = 'Notice Permit Due to Expire' ");
+			db.query("select * from TEMPLATE where NAME = '"+ template +"' ");
 			if(db.next()) {
 				subject = db.getString("NAME");
 				content = db.getString("TEMPLATE");
 			}
 			db.clear();
 			
-			db.query(" SELECT A.ID, STUFF(( select ';' + EMAIL from REF_ACT_USERS AU JOIN REF_USERS RU ON AU.REF_USERS_ID = RU.ID AND RU.ACTIVE = 'Y' JOIN USERS U ON RU.USERS_ID = U.ID AND U.ACTIVE = 'Y' where A.ID = AU.ACTIVITY_ID AND AU.ACTIVE = 'Y' AND NOTIFY = 'Y' for xml path('')),1,1,'') EMAIL FROM ACTIVITY A WHERE exp_date = CONVERT(date, getDate() + 30, 101) ");
+			db.query(" SELECT A.ID, STUFF(( select ';' + EMAIL from REF_ACT_USERS AU JOIN REF_USERS RU ON AU.REF_USERS_ID = RU.ID AND RU.ACTIVE = 'Y' JOIN USERS U ON RU.USERS_ID = U.ID AND U.ACTIVE = 'Y' where A.ID = AU.ACTIVITY_ID AND AU.ACTIVE = 'Y' AND NOTIFY = 'Y' for xml path('')),1,1,'') EMAIL FROM ACTIVITY A WHERE exp_date = CONVERT(date, getDate() + "+ days +", 101) ");
 			while(db.next()) {
 				int actid = db.getInt("ID");
 				email = db.getString("EMAIL");
@@ -49,7 +49,7 @@ public class TasksAgent {
 				status = db.getInt("ID");
 			}
 			
-			db.query("select a.id, exp_date from activity a join lkup_act_status s on a.lkup_act_status_id = s.id where (issued !='Y' and expired !='Y') and exp_date <= getdate() and exp_date >= '2024-08-01' ");
+			db.query("select a.id, exp_date from activity a join lkup_act_status s on a.lkup_act_status_id = s.id where (issued !='Y' and expired !='Y') and exp_date <= getdate() and exp_date >= '2025-01-31' ");
 			while(db.next()) {
 				int actid = db.getInt("ID");
 				command = "UPDATE ACTIVITY SET UPDATED_DATE = CURRENT_TIMESTAMP, LKUP_ACT_STATUS_ID = "+ status +" WHERE ID = "+actid;

@@ -217,7 +217,8 @@ public class MassTemplateSQL {
 					sb.append("         SELECT DISTINCT ");
 					//sb.append("         A.ID as ACT_ID, ");
 					sb.append("         U.ID as user_id, ");
-					sb.append("         P.ID as people_id, ");
+					//sb.append("         P.ID as people_id, ");
+					sb.append("         LIC_NO as people_lic_num, ");
 					sb.append("         FIRST_NAME + ' ' + LAST_NAME   as people_name , ");
 					sb.append("         U.USERNAME   as people_username , ");
 					sb.append("         U.EMAIL as people_email, ");
@@ -241,6 +242,11 @@ public class MassTemplateSQL {
 					sb.append("         LAST_NAME people_last_name, ");
 					sb.append("         LUT.TYPE as people_type , ");
 					sb.append("         ADDRESS as people_address ");
+					
+					
+					sb.append(" , CASE WHEN RAU.REF_USERS_ID=RU.ID THEN RAU.NAME  ELSE RAUP.NAME END as people_company_name ");
+					sb.append("  ,LCT.TYPE AS people_company_type ");
+					
 				//	sb.append("         , ");
 				//	sb.append("         PL.LIC_NUM as people_lic_num, ");
 				//	sb.append("         CONVERT(VARCHAR(10), PL.LIC_EXPIRATION_DATE, 101) as people_lic_expiration_date, ");
@@ -250,6 +256,10 @@ public class MassTemplateSQL {
 					sb.append("                         LEFT OUTER join REF_ACT_USERS RAU on A.ID=RAU.ACTIVITY_ID  AND RAU.ACTIVE='Y' ");
 					sb.append("                         LEFT OUTER JOIN   REF_PROJECT_USERS RAUP on A.PROJECT_ID=RAUP.PROJECT_ID  AND RAUP.ACTIVE='Y'    ");
 					sb.append("                          join REF_USERS RU on (RAU.REF_USERS_ID=RU.ID  OR      RAUP.REF_USERS_ID=RU.ID   )  ");
+					
+					//added new
+					sb.append("                         left outer join LKUP_COMPANY_TYPE LCT on ( (RAU.LKUP_COMPANY_TYPE_ID=LCT.ID AND RAU.REF_USERS_ID=RU.ID) OR   ( RAUP.REF_USERS_ID=RU.ID AND  RAUP.LKUP_COMPANY_TYPE_ID=LCT.ID )  )    ");
+					
 					
 					
 					sb.append("                         left outer join LKUP_USERS_TYPE as LUT on RU.LKUP_USERS_TYPE_ID=LUT.ID  ");

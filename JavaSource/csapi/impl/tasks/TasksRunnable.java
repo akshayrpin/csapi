@@ -3,6 +3,9 @@ package csapi.impl.tasks;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import alain.core.db.Sage;
 import alain.core.security.Token;
 import alain.core.utils.Logger;
@@ -126,8 +129,18 @@ public class TasksRunnable {
 		return s;
 	}
 
-	public static String emailExpiredPermits() {
-		return Operator.b2s(TasksAgent.emailExpiredPermits());
+	public static String emailExpiredPermits(String json) {
+		int days;
+		String template;
+		try {
+			JSONObject jsonObject = new JSONObject(json);
+			days = jsonObject.getInt("days") > 0 ? jsonObject.getInt("days") : 0;
+			template = jsonObject.getString("template");
+		} catch (Exception e) {
+			days = 0;
+			template = "";
+		}
+		return Operator.b2s(TasksAgent.emailExpiredPermits(days, template));
 	}
 
 	public static String updateActivity() {

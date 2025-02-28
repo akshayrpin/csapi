@@ -10,6 +10,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.json.JSONException;
+
 import alain.core.utils.Logger;
 import csapi.impl.communications.CommunicationsImpl;
 import csapi.impl.people.PeopleImpl;
@@ -63,7 +65,8 @@ public class TasksProcess  {
 	public Response emailexpiredpermits(@Context HttpServletRequest request,@Context HttpServletResponse response, String json) {
 		Logger.logmethod("API COMMUNICATIONS");
 		Logger.line("API INPUT", "RUN");
-		String output = TasksRunnable.emailExpiredPermits().toString();
+		String output = null;
+		output = TasksRunnable.emailExpiredPermits(json).toString();
 		Logger.line("API OUTPUT", output);
 		return Response.status(200).entity(output).build();
 		

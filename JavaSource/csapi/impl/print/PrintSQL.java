@@ -45,8 +45,8 @@ public class PrintSQL {
 			if(Operator.hasValue(online)) {
 				sb.append(" 	AND (RT.ONLINE='Y' OR T.ONLINE = 'Y' ) ");
 			}
-			if(Operator.equalsIgnoreCase(pub,"Y")) {
-				sb.append(" 	AND ispublic = '");
+			if(Operator.equalsIgnoreCase(pub, "Y")) {
+				sb.append("     AND ispublic = '");
 				sb.append(pub);
 				sb.append("'");
 			}
@@ -70,8 +70,8 @@ public class PrintSQL {
 				if(Operator.hasValue(online)) {
 					sb.append(" 	AND (RT.ONLINE='Y' OR T.ONLINE = 'Y' ) ");
 				}
-				if(Operator.equalsIgnoreCase(pub,"Y")) {
-					sb.append(" 	AND ispublic = '");
+				if(Operator.equalsIgnoreCase(pub, "Y")) {
+					sb.append("     AND ispublic = '");
 					sb.append(pub);
 					sb.append("'");
 				}
@@ -95,8 +95,8 @@ public class PrintSQL {
 			if(Operator.hasValue(subreq) && subreq.equalsIgnoreCase("batch"))
 				sb.append("  AND BATCH = 'Y' ");
 
-			if(Operator.equalsIgnoreCase(pub,"Y")) {
-				sb.append(" 	AND ispublic = '");
+			if(Operator.equalsIgnoreCase(pub, "Y")) {
+				sb.append("     AND ispublic = '");
 				sb.append(pub);
 				sb.append("'");
 			}
@@ -114,8 +114,8 @@ public class PrintSQL {
 				sb.append(" 	AND T.ONLINE = 'Y' ");
 			}
 
-			if(Operator.equalsIgnoreCase(pub,"Y")) {
-				sb.append(" 	AND ispublic = '");
+			if(Operator.equalsIgnoreCase(pub, "Y")) {
+				sb.append("     AND ispublic = '");
 				sb.append(pub);
 				sb.append("'");
 			}
