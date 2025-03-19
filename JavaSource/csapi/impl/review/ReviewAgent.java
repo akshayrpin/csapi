@@ -365,20 +365,37 @@ public class ReviewAgent {
 										int actid = db.getInt("ID");
 										String inherit = db.getString("INHERIT");
 										String statusinherit = db.getString("STATUS_INHERIT");
+										String issueddate = db.getString("ISSUED_DATE");
 										if (Operator.equalsIgnoreCase(inherit, "Y") && Operator.equalsIgnoreCase(statusinherit, "Y")) {
-											command = ActivitySQL.inheritExpiration(projectid);
-											if (db.update(command)) {
-												command = ActivitySQL.getNullExpiration(projectid);
-												if (db.query(command) && db.size() < 1) {
-													command = ProjectSQL.updateExpiration(projectid);
+											String codetoggle = db.getString("CODE_ENFORCEMENT");
+											if(!Operator.equalsIgnoreCase(codetoggle, "Y")) {
+												command = ActivitySQL.getExpiration(actid);
+												db.query(command);
+												String expdate = "";
+												if(db.next()) {
+													expdate = db.getString("EXP_DATE");
 												}
-												else {
-													command = ProjectSQL.removeExpiration(projectid);
+												Timekeeper iss = new Timekeeper(issueddate);
+												iss.addYear(3);
+												iss.getString("MM/DD/YYY");
+												Timekeeper exp = new Timekeeper(expdate);
+												exp.getString("MM/DD/YYY");
+												if(!iss.greaterThan(exp)) {
+													command = ActivitySQL.inheritExpiration(projectid);
+													if (db.update(command)) {
+														command = ActivitySQL.getNullExpiration(projectid);
+														if (db.query(command) && db.size() < 1) {
+															command = ProjectSQL.updateExpiration(projectid);
+														}
+														else {
+															command = ProjectSQL.removeExpiration(projectid);
+														}
+														db.update(command);
+														CsDeleteCache.deleteProjectChildCache("project", projectid, "activity");
+														CsDeleteCache.deleteProjectCache("project", projectid, "activities");
+														CsDeleteCache.deleteProjectCache("project", projectid, "project");
+													}
 												}
-												db.update(command);
-												CsDeleteCache.deleteProjectChildCache("project", projectid, "activity");
-												CsDeleteCache.deleteProjectCache("project", projectid, "activities");
-												CsDeleteCache.deleteProjectCache("project", projectid, "project");
 											}
 										}
 									}

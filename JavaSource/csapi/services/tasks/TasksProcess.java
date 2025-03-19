@@ -79,7 +79,7 @@ public class TasksProcess  {
 	public Response expirePermits(@Context HttpServletRequest request,@Context HttpServletResponse response, String json) {
 		Logger.logmethod("API COMMUNICATIONS");
 		Logger.line("API INPUT", "RUN");
-		String output = TasksRunnable.updateActivity().toString();
+		String output = TasksRunnable.updateActivity(json).toString();
 		Logger.line("API OUTPUT", output);
 		return Response.status(200).entity(output).build();
 		

@@ -611,7 +611,7 @@ public class ActivityAgent {
 							}
 
 							if(planchkreq.equalsIgnoreCase("Y")) {
-								db.update(ActivitySQL.updateActDates(actid, null, userid, ip));
+								db.update(ActivitySQL.updateActDates(actid, null, null, userid, ip));
 							}
 							addHistory(actid, "activity", actid, "add");
 						}
@@ -1545,10 +1545,10 @@ public class ActivityAgent {
 	}
 
 	public static void updatePlanActivity(int activityid, Token u) {
-		SubObjVO[] v = getActTypedates("", activityid, u);
+		SubObjVO[] v = getActTypedates("activity", activityid, u);
 		String planreq = v[0].getAddldata().get("PLAN_CHK_REQ");
 		if(planreq.equalsIgnoreCase("Y")) {
-			String command  = ActivitySQL.updateActDates(activityid, v[0].getAddldata().get("PERMIT_EXPIRE"), u.getId(), u.getIp());
+			String command  = ActivitySQL.updateActDates(activityid, v[0].getAddldata().get("PERMIT_EXPIRE"), v[0].getAddldata().get("APPLICATION_EXP_DATE"), u.getId(), u.getIp());
 			Sage db = new Sage();
 			db.update(command);
 		}

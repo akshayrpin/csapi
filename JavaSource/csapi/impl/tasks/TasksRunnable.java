@@ -143,8 +143,15 @@ public class TasksRunnable {
 		return Operator.b2s(TasksAgent.emailExpiredPermits(days, template));
 	}
 
-	public static String updateActivity() {
-		return Operator.b2s(TasksAgent.updateActivity());
+	public static String updateActivity(String json) {
+		String template;
+		try {
+			JSONObject jsonObject = new JSONObject(json);
+			template = jsonObject.getString("template");
+		} catch (Exception e) {
+			template = "";
+		}
+		return Operator.b2s(TasksAgent.updateActivity(template));
 	}
 }
 

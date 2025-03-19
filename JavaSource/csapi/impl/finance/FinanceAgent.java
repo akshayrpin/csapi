@@ -2952,10 +2952,10 @@ public class FinanceAgent {
 					}*/
 					updatestatements(paymentId, u.getId());
 					
-					for(int i=0;i<adarr.length();i++){
-					JSONObject a = adarr.getJSONObject(i);
+					/*for(int i=0;i<adarr.length();i++){
+						JSONObject a = adarr.getJSONObject(i);
 						ActivityAgent.updatePlanActivity(a.getInt("activityid"), u);
-					}
+					}*/
 					
 					
 				}

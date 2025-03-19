@@ -474,6 +474,7 @@ public class PrintAgent {
 						f.put("doinvoice", true);
 					}
 				}
+				db.clear();
 			} else {
 				for(Element e : es){
 					String attr = e.attr("rowtype");

@@ -2534,6 +2534,23 @@ public class ActivitySQL {
 		return sb.toString();
 	}
 
+	public static String getExpiration(int actid) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(" SELECT ");
+		sb.append(" 			CASE ");
+		sb.append(" 				WHEN YEARS_TILL_EXPIRED > 0 AND DAYS_TILL_EXPIRED > 0 THEN DATEADD(yy,YEARS_TILL_EXPIRED,getdate()) + DAYS_TILL_EXPIRED ");
+		sb.append(" 				WHEN YEARS_TILL_EXPIRED > 0 THEN DATEADD(yy,YEARS_TILL_EXPIRED,getdate()) ");
+		sb.append(" 				WHEN DAYS_TILL_EXPIRED > 0 THEN getDate() + DAYS_TILL_EXPIRED ");
+		sb.append(" 			ELSE getDate() END AS EXP_DATE ");
+		sb.append(" 		FROM ");
+		sb.append(" 			ACTIVITY JOIN LKUP_ACT_TYPE ON LKUP_ACT_TYPE.ID = LKUP_ACT_TYPE_ID ");
+		sb.append(" WHERE ");
+		sb.append(" 	ACTIVITY.INHERIT = 'Y' ");
+		sb.append(" 	AND ");
+		sb.append(" 	ACTIVITY.ID = ").append(actid);
+		return sb.toString();
+	}
+
 	public static String getNullExpiration(int projectid) {
 		if (projectid < 1) { return ""; }
 		StringBuilder sb = new StringBuilder();
@@ -3415,7 +3432,7 @@ public class ActivitySQL {
 		return sb.toString();
 	}
 
-	public static String updateActDates(int activityid, String expdate, int userid, String ip) {
+	public static String updateActDates(int activityid, String expdate, String appexpdate, int userid, String ip) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(" UPDATE  ACTIVITY SET ");
 		sb.append(" 	UPDATED_BY = ").append(userid);
@@ -3427,9 +3444,17 @@ public class ActivitySQL {
 			sb.append(" 	, ");
 			sb.append(" 	EXP_DATE = ");
 			sb.append(CsTools.dateColumnValue(expdate));
-		} else {
+		} else if(expdate == null){
 			sb.append(" 	, ");
 			sb.append(" 	EXP_DATE = null ");
+		}
+		if (Operator.hasValue(appexpdate)) {
+			sb.append(" 	, ");
+			sb.append(" 	APPLICATION_EXP_DATE = ");
+			sb.append(CsTools.dateColumnValue(appexpdate));
+		} else if(appexpdate == null){
+			sb.append(" 	, ");
+			sb.append(" 	APPLICATION_EXP_DATE = null ");
 		}
 		sb.append(" where id = ");
 		sb.append(activityid);

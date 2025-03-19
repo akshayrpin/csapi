@@ -16,9 +16,11 @@ import csapi.impl.general.DBBatch;
 import csapi.impl.print.PrintAgent;
 import csapi.impl.print.PrintImpl;
 import csshared.vo.RequestVO;
+import csshared.vo.SubObjVO;
 import csshared.vo.TaskVO;
 import alain.core.db.Sage;
 import alain.core.email.ExchangeMessenger;
+import alain.core.security.Token;
 import alain.core.utils.Cartographer;
 import alain.core.utils.Config;
 import alain.core.utils.FileUtil;
@@ -622,6 +624,23 @@ public class Payment {
 			if(statusId==4){
 				
 				sb.append(" ,FINAL_DATE = '").append(k.getString("YYYY-MM-DD")).append("' ");
+			}
+			
+			if(statusId == 1064) {
+				Token u = new Token();
+				SubObjVO[] v = ActivityAgent.getActTypedates("activity", actid, u);
+				String planreq = v[0].getAddldata().get("PLAN_CHK_REQ");
+				if(planreq.equalsIgnoreCase("Y")) {
+					sb.append(" ,EXP_DATE = '").append(v[0].getAddldata().get("PERMIT_EXPIRE")).append("' ");
+					sb.append(" ,APPLICATION_EXP_DATE = '").append(v[0].getAddldata().get("APPLICATION_EXP_DATE")).append("' ");
+				}
+			}
+			
+			if(statusId == 1069) {
+				Token u = new Token();
+				SubObjVO[] v = ActivityAgent.getActTypedates("activity", actid, u);
+				sb.append(" ,EXP_DATE = '").append(v[0].getAddldata().get("PERMIT_EXPIRE")).append("' ");
+				sb.append(" ,APPLICATION_EXP_DATE = '").append(v[0].getAddldata().get("APPLICATION_EXP_DATE")).append("' ");
 			}
 			
 			

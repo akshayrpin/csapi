@@ -19,16 +19,15 @@ public class TasksAgent {
 			if(db.next()) {
 				subject = db.getString("NAME");
 				content = db.getString("TEMPLATE");
-			}
-			db.clear();
 			
-			db.query(" SELECT A.ID, STUFF(( select ';' + EMAIL from REF_ACT_USERS AU JOIN REF_USERS RU ON AU.REF_USERS_ID = RU.ID AND RU.ACTIVE = 'Y' JOIN USERS U ON RU.USERS_ID = U.ID AND U.ACTIVE = 'Y' where A.ID = AU.ACTIVITY_ID AND AU.ACTIVE = 'Y' AND NOTIFY = 'Y' for xml path('')),1,1,'') EMAIL FROM ACTIVITY A WHERE exp_date = CONVERT(date, getDate() + "+ days +", 101) ");
-			while(db.next()) {
-				int actid = db.getInt("ID");
-				email = db.getString("EMAIL");
-				if(Operator.hasValue(email)) {
-					CommunicationsAgent.email("review", 0, email, 890, subject, content, 0, "");
-					result = true;
+				db.query(" SELECT A.ID, STUFF(( select ';' + EMAIL from REF_ACT_USERS AU JOIN REF_USERS RU ON AU.REF_USERS_ID = RU.ID AND RU.ACTIVE = 'Y' JOIN USERS U ON RU.USERS_ID = U.ID AND U.ACTIVE = 'Y' where A.ID = AU.ACTIVITY_ID AND AU.ACTIVE = 'Y' AND NOTIFY = 'Y' for xml path('')),1,1,'') EMAIL FROM ACTIVITY A WHERE exp_date = CONVERT(date, getDate() + "+ days +", 101) ");
+				while(db.next()) {
+					int actid = db.getInt("ID");
+					email = db.getString("EMAIL");
+					if(Operator.hasValue(email)) {
+						CommunicationsAgent.email("activity", 0, email, 890, subject, content, 0, "");
+						result = true;
+					}
 				}
 			}
 		} finally {
@@ -37,7 +36,7 @@ public class TasksAgent {
 		return result;
 	}
 
-	public static boolean updateActivity() {
+	public static boolean updateActivity(String template) {
 		Sage db = new Sage();
 		Sage db1 = new Sage();
 		String command;
@@ -62,6 +61,24 @@ public class TasksAgent {
 				
 				if(result){
 					ActivityAgent.addHistory(actid, "activity", actid, "update");
+					
+					String content = null;
+					String subject = null;
+					String email;
+					db.query("select * from TEMPLATE where NAME = '"+ template +"' ");
+					if(db.next()) {
+						subject = db.getString("NAME");
+						content = db.getString("TEMPLATE");
+					
+						db.query(" SELECT A.ID, STUFF(( select ';' + EMAIL from REF_ACT_USERS AU JOIN REF_USERS RU ON AU.REF_USERS_ID = RU.ID AND RU.ACTIVE = 'Y' JOIN USERS U ON RU.USERS_ID = U.ID AND U.ACTIVE = 'Y' where A.ID = AU.ACTIVITY_ID AND AU.ACTIVE = 'Y' AND NOTIFY = 'Y' for xml path('')),1,1,'') EMAIL FROM ACTIVITY A WHERE A.ID = "+ actid);
+						while(db.next()) {
+							email = db.getString("EMAIL");
+							if(Operator.hasValue(email)) {
+								CommunicationsAgent.email("activity", 0, email, 890, subject, content, 0, "");
+								result = true;
+							}
+						}
+					}
 				}
 				
 			}
