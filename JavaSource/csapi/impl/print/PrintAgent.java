@@ -450,7 +450,7 @@ public class PrintAgent {
 						f.put("dositedata", true);
 					}
 					
-					if(template.indexOf("{division_")>0 || template.indexOf("{lso_")>0  && Operator.contains("division", db.getString("module"))){
+					if(template.indexOf("{division_")>0 || template.indexOf("{lso_")>0){
 						f.put("dodivision", true);
 					}
 					

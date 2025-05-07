@@ -2335,7 +2335,7 @@ public class MassTemplateSQL {
 		sb.append(" 	select  ");
 		sb.append(" 	CONVERT(varchar(100), L.STR_NO)+' '+ ");
 		sb.append(" 	CASE WHEN STR_MOD is null THEN '' ELSE STR_MOD+' ' END+'' + CASE WHEN PRE_DIR is null THEN '' ELSE PRE_DIR+' ' END+'' + LS.STR_NAME+' '+ LS.STR_TYPE+' ' +CASE WHEN L.UNIT is null then '' ELSE L.UNIT END as  ");
-		sb.append(" 	lso_address,APN as lso_APN ,CITY as lso_city,STATE as lso_state,ZIP as lso_zip,ZIP4 as lso_zip4 ");
+		sb.append(" 	lso_address,APN as lso_apn ,CITY as lso_city,STATE as lso_state,ZIP as lso_zip,ZIP4 as lso_zip4 ");
 		sb.append("  ");
 		sb.append(" 	FOR XML RAW('f'), TYPE ");
 		sb.append(" 	) ");
@@ -2408,7 +2408,7 @@ public class MassTemplateSQL {
 		sb.append(" 	select  ");
 		sb.append(" 	CONVERT(varchar(100), L.STR_NO)+' '+ ");
 		sb.append(" 	CASE WHEN STR_MOD is null THEN '' ELSE STR_MOD+' ' END+'' + CASE WHEN PRE_DIR is null THEN '' ELSE PRE_DIR+' ' END+'' + LS.STR_NAME+' '+ LS.STR_TYPE+' ' +CASE WHEN L.UNIT is null then '' ELSE L.UNIT END as  ");
-		sb.append(" 	lso_address,APN as lso_APN ,CITY as lso_city,STATE as lso_state,ZIP as lso_zip,ZIP4 as lso_zip4 ");
+		sb.append(" 	lso_address,APN as lso_apn ,CITY as lso_city,STATE as lso_state,ZIP as lso_zip,ZIP4 as lso_zip4 ");
 		sb.append("  ");
 		sb.append(" 	FOR XML RAW('f'), TYPE ");
 		sb.append(" 	) ");
