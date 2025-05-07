@@ -369,18 +369,24 @@ public class ReviewAgent {
 										if (Operator.equalsIgnoreCase(inherit, "Y") && Operator.equalsIgnoreCase(statusinherit, "Y")) {
 											String codetoggle = db.getString("CODE_ENFORCEMENT");
 											if(!Operator.equalsIgnoreCase(codetoggle, "Y")) {
-												command = ActivitySQL.getExpiration(actid);
+												command = ActivitySQL.getApprovedReviewExpiration(actid);
 												db.query(command);
 												String expdate = "";
 												if(db.next()) {
 													expdate = db.getString("EXP_DATE");
 												}
-												Timekeeper iss = new Timekeeper(issueddate);
-												iss.addYear(3);
-												iss.getString("MM/DD/YYY");
+												Timekeeper iss = null;
+												try {
+													iss = new Timekeeper(issueddate);
+													iss.addYear(3);
+													iss.getString("MM/DD/YYY");
+												} catch(Exception e) {
+													r.setMessagecode("cs500");
+													r.addError("Could not verify addition of action");
+												}
 												Timekeeper exp = new Timekeeper(expdate);
 												exp.getString("MM/DD/YYY");
-												if(!iss.greaterThan(exp)) {
+												if(iss == null || !iss.greaterThan(exp)) {
 													command = ActivitySQL.inheritExpiration(projectid);
 													if (db.update(command)) {
 														command = ActivitySQL.getNullExpiration(projectid);
@@ -394,6 +400,37 @@ public class ReviewAgent {
 														CsDeleteCache.deleteProjectChildCache("project", projectid, "activity");
 														CsDeleteCache.deleteProjectCache("project", projectid, "activities");
 														CsDeleteCache.deleteProjectCache("project", projectid, "project");
+														CsReflect.addHistory(type, projectid, due, actid, "update");
+													}
+												}
+											}
+										} else {
+											String codetoggle = db.getString("CODE_ENFORCEMENT");
+											if(!Operator.equalsIgnoreCase(codetoggle, "Y")) {
+												command = ActivitySQL.getApprovedReviewExpiration(actid);
+												db.query(command);
+												String expdate = "";
+												if(db.next()) {
+													expdate = db.getString("EXP_DATE");
+												}
+												Timekeeper iss = null;
+												try {
+													iss = new Timekeeper(issueddate);
+													iss.addYear(3);
+													iss.getString("MM/DD/YYY");
+												} catch(Exception e) {
+													r.setMessagecode("cs500");
+													r.addError("Could not verify addition of action");
+												}
+												Timekeeper exp = new Timekeeper(expdate);
+												exp.getString("MM/DD/YYY");
+												if(iss == null || !iss.greaterThan(exp)) {
+													command = ActivitySQL.nonInheritExpiration(actid);
+													if (db.update(command)) {
+														CsDeleteCache.deleteProjectChildCache("project", projectid, "activity");
+														CsDeleteCache.deleteProjectCache("project", projectid, "activities");
+														CsDeleteCache.deleteProjectCache("project", projectid, "project");
+														CsReflect.addHistory(type, actid, due, actid, "update");
 													}
 												}
 											}

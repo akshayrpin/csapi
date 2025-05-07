@@ -2534,6 +2534,26 @@ public class ActivitySQL {
 		return sb.toString();
 	}
 
+	public static String nonInheritExpiration(int actid) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(" UPDATE ");
+		sb.append(" 	ACTIVITY ");
+		sb.append(" SET ");
+		sb.append(" 	EXP_DATE = ( ");
+		sb.append(" 		SELECT ");
+		sb.append(" 			CASE ");
+		sb.append(" 				WHEN YEARS_TILL_EXPIRED > 0 AND DAYS_TILL_EXPIRED > 0 THEN DATEADD(yy,YEARS_TILL_EXPIRED,getdate()) + DAYS_TILL_EXPIRED ");
+		sb.append(" 				WHEN YEARS_TILL_EXPIRED > 0 THEN DATEADD(yy,YEARS_TILL_EXPIRED,getdate()) ");
+		sb.append(" 				WHEN DAYS_TILL_EXPIRED > 0 THEN getDate() + DAYS_TILL_EXPIRED ");
+		sb.append(" 			ELSE getDate() END AS EXP_DATE ");
+		sb.append(" 		FROM ");
+		sb.append(" 			LKUP_ACT_TYPE WHERE LKUP_ACT_TYPE.ID = LKUP_ACT_TYPE_ID ");
+		sb.append(" 		) ");
+		sb.append(" WHERE ");
+		sb.append(" 	ID = ").append(actid);
+		return sb.toString();
+	}
+
 	public static String getExpiration(int actid) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(" SELECT ");
@@ -2548,6 +2568,19 @@ public class ActivitySQL {
 		sb.append(" 	ACTIVITY.INHERIT = 'Y' ");
 		sb.append(" 	AND ");
 		sb.append(" 	ACTIVITY.ID = ").append(actid);
+		return sb.toString();
+	}
+
+	public static String getApprovedReviewExpiration(int actid) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(" SELECT ");
+		sb.append(" CASE ");
+		sb.append(" 	WHEN APPROVED_REVIEW_PERMITDAYS_TILL_EXPIRED > 0 THEN getDate() + APPROVED_REVIEW_PERMITDAYS_TILL_EXPIRED ");
+		sb.append(" 	ELSE getDate() END AS EXP_DATE ");
+		sb.append(" FROM ");
+		sb.append(" ACTIVITY JOIN LKUP_ACT_TYPE ON LKUP_ACT_TYPE.ID = LKUP_ACT_TYPE_ID ");
+		sb.append(" WHERE ");
+		sb.append(" ACTIVITY.ID = ").append(actid);
 		return sb.toString();
 	}
 
