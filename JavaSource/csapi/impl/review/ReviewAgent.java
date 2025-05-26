@@ -379,14 +379,14 @@ public class ReviewAgent {
 												try {
 													iss = new Timekeeper(issueddate);
 													iss.addYear(3);
-													iss.getString("MM/DD/YYY");
+													iss.getString("MM/DD/YYYY");
 												} catch(Exception e) {
 													r.setMessagecode("cs500");
 													r.addError("Could not verify addition of action");
 												}
 												Timekeeper exp = new Timekeeper(expdate);
-												exp.getString("MM/DD/YYY");
-												if(iss == null || !iss.greaterThan(exp)) {
+												exp.getString("MM/DD/YYYY");
+												if(iss == null || iss.greaterThan(exp)) {
 													command = ActivitySQL.inheritExpiration(projectid);
 													if (db.update(command)) {
 														command = ActivitySQL.getNullExpiration(projectid);

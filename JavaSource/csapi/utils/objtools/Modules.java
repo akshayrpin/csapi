@@ -151,6 +151,10 @@ public class Modules {
 								if (rl.readAccess(u.getRoles(), u.getNonpublicroles())) {
 									valid = true;
 								}
+								
+								if (type.equalsIgnoreCase("project") && u.getId() < 0 && title.equalsIgnoreCase("print")) {
+									valid = false;
+								}
 							}
 						}
 						if (valid) {
